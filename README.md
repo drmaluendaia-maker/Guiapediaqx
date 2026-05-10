@@ -139,3 +139,23 @@ Esta versión es un prototipo. Antes de uso clínico real, revisar y aprobar dos
 - Incluye esquema adulto de referencia: TMS-SMZ 160/800 mg cada 12 h + clindamicina 500 mg cada 6-8 h.
 - Incluye equivalentes pediátricos en suspensión: Dosulfín 200/40 mg cada 5 ml y Resbiotic Pediátrico 75 mg cada 5 ml.
 - Agrega recomendaciones de manejo inicial de mordeduras según SAP: lavado con agua y jabón, irrigación, no cepillado, cierre según riesgo, tétanos/rabia y contacto con zoonosis cuando corresponda.
+
+## Cambios v0.4
+
+- Reconstruye el módulo **Suturas** como apartado completo y autónomo.
+- Agrega selector de zona anatómica con recomendaciones de:
+  - material de sutura,
+  - técnica básica,
+  - tiempo de retiro,
+  - necesidad de interconsulta,
+  - antibiótico al alta,
+  - curaciones y control.
+- Incluye cálculo de **lidocaína sin adrenalina** dentro del módulo Suturas.
+- Agrega checklist de evaluación previa a la sutura para operadores con experiencia limitada.
+- Agrega criterios de **derivar / avisar cirugía**.
+- Agrega selección rápida del tipo de cierre: punto simple, tiras adhesivas, adhesivo tisular, grapas, plano profundo o cierre diferido.
+- Agrega indicaciones de curación domiciliaria, en centro de salud o guardia/cirugía.
+- Agrega pautas de alarma y texto copiable de alta.
+- Agrega recordatorio de profilaxis antitetánica.
+- Agrega enlaces externos a recursos visuales de sutura básica: MSD Manual, NEJM, Geeky Medics y CHOP.
+
