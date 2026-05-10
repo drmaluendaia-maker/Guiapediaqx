@@ -131,3 +131,11 @@ Las marcas comerciales están cargadas como ejemplos para orientar al residente 
 ## 10. Advertencia de uso
 
 Esta versión es un prototipo. Antes de uso clínico real, revisar y aprobar dosis, topes, indicaciones, marcas comerciales, alternativas y duraciones con protocolo institucional local, cirugía pediátrica, infectología y farmacia hospitalaria.
+
+
+## Cambios v0.3
+
+- Agrega alternativa para mordeduras en alergia a betalactámicos: TMS-SMZ + clindamicina.
+- Incluye esquema adulto de referencia: TMS-SMZ 160/800 mg cada 12 h + clindamicina 500 mg cada 6-8 h.
+- Incluye equivalentes pediátricos en suspensión: Dosulfín 200/40 mg cada 5 ml y Resbiotic Pediátrico 75 mg cada 5 ml.
+- Agrega recomendaciones de manejo inicial de mordeduras según SAP: lavado con agua y jabón, irrigación, no cepillado, cierre según riesgo, tétanos/rabia y contacto con zoonosis cuando corresponda.

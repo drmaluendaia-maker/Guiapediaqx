@@ -61,6 +61,31 @@ const DOSE_DB = {
       }
     ]
   },
+  mordeduraAlergiaBeta: {
+    title: 'Alternativa en alergia a betalactámicos',
+    note: 'Para mordeduras: cubrir Pasteurella/Capnocytophaga + anaerobios. Evitar cefalosporinas como sustituto simple.',
+    adult: 'TMS-SMZ 160/800 mg VO cada 12 h + clindamicina 500 mg VO cada 6–8 h',
+    tmpSmx: {
+      label: 'Trimetoprima/sulfametoxazol',
+      doseTmpMgKgDay: 8,
+      doseSmxMgKgDay: 40,
+      intervalHours: 12,
+      maxTmpMgDay: 320,
+      maxSmxMgDay: 1600,
+      suspension: { label: 'Suspensión 200/40 mg cada 5 ml', tmpMgMl: 8, smxMgMl: 40 },
+      tablet: { label: 'Comprimido DS 160/800 mg', tmpMg: 160, smxMg: 800 },
+      brands: ['Dosulfín suspensión / comprimidos', 'TMS-SMZ equivalente']
+    },
+    clindamycin: {
+      label: 'Clindamicina',
+      doseMgKgDay: 20,
+      intervalHours: 8,
+      maxMgDay: 1800,
+      suspension: { label: 'Resbiotic Pediátrico 75 mg/5 ml', mgMl: 15 },
+      adultTablet: { label: 'Esquema adulto SADI: 500 mg', mg: 500 },
+      brands: ['Resbiotic Pediátrico', 'Clindamicina equivalente según stock']
+    }
+  },
   analgesia: {
     paracetamol: {
       label: 'Paracetamol',
@@ -186,6 +211,97 @@ function DoseEditor({ label, unit, value, setValue, onApply, dirty }) {
   )
 }
 
+function BiteBetaAllergyRegimen({ weight, noSolids }) {
+  const db = DOSE_DB.mordeduraAlergiaBeta
+  const tmp = db.tmpSmx
+  const clinda = db.clindamycin
+  const [tmpDoseInput, setTmpDoseInput] = useState(String(tmp.doseTmpMgKgDay))
+  const [activeTmpDose, setActiveTmpDose] = useState(tmp.doseTmpMgKgDay)
+  const [clindaDoseInput, setClindaDoseInput] = useState(String(clinda.doseMgKgDay))
+  const [activeClindaDose, setActiveClindaDose] = useState(clinda.doseMgKgDay)
+  const [clindaInterval, setClindaInterval] = useState(String(clinda.intervalHours))
+  const [open, setOpen] = useState(true)
+
+  const dosesPerDayTmp = 24 / tmp.intervalHours
+  const tmpDailyRaw = weight * activeTmpDose
+  const tmpDaily = Math.min(tmpDailyRaw, tmp.maxTmpMgDay)
+  const smxDailyRaw = weight * (activeTmpDose * 5)
+  const smxDaily = Math.min(smxDailyRaw, tmp.maxSmxMgDay)
+  const tmpDoseMg = tmpDaily / dosesPerDayTmp
+  const smxDoseMg = smxDaily / dosesPerDayTmp
+  const tmpMl = tmpDoseMg / tmp.suspension.tmpMgMl
+  const tmpTabs = tmpDoseMg / tmp.tablet.tmpMg
+
+  const clindaIntervalNumber = parseNumber(clindaInterval) || 8
+  const dosesPerDayClinda = 24 / clindaIntervalNumber
+  const clindaDailyRaw = weight * activeClindaDose
+  const clindaDaily = Math.min(clindaDailyRaw, clinda.maxMgDay)
+  const clindaDoseMg = clindaDaily / dosesPerDayClinda
+  const clindaMl = clindaDoseMg / clinda.suspension.mgMl
+
+  const tmpDirty = parseNumber(tmpDoseInput) !== activeTmpDose
+  const clindaDirty = parseNumber(clindaDoseInput) !== activeClindaDose
+  const applyTmp = () => {
+    const next = parseNumber(tmpDoseInput)
+    if (!Number.isFinite(next) || next <= 0) return
+    setActiveTmpDose(next)
+  }
+  const applyClinda = () => {
+    const next = parseNumber(clindaDoseInput)
+    if (!Number.isFinite(next) || next <= 0) return
+    setActiveClindaDose(next)
+  }
+
+  return (
+    <section className="card medCard betaAltCard">
+      <div className="sectionTitle"><span>💊</span><h3>{db.title}</h3></div>
+      <div className="alert ok">Mordedura + alergia a betalactámicos: alternativa sugerida TMS-SMZ + clindamicina. Validar gravedad, edad, función renal y protocolo local.</div>
+      <div className="adultScheme"><b>Paciente que toma comprimidos</b><span>{db.adult}</span></div>
+      {noSolids === 'Sí' && <div className="alert warn">Paciente marcado como “no deglute sólidos”: mostrar equivalentes en suspensión.</div>}
+
+      <div className="comboGrid">
+        <div className="comboDrug">
+          <h4>{tmp.label}</h4>
+          <DoseEditor label="Dosis diaria TMP" unit="mg/kg/día" value={tmpDoseInput} setValue={setTmpDoseInput} dirty={tmpDirty} onApply={applyTmp} />
+          <div className="doseLine">
+            <b>{fmt(tmpMl)} ml VO cada 12 h</b>
+            <small>{fmt(tmpDoseMg)} mg TMP + {fmt(smxDoseMg)} mg SMX por toma · {tmp.suspension.label}</small>
+          </div>
+          <div className="doseLine subtle">
+            <b>{fmt(tmpTabs, 1)} comp. DS cada 12 h</b>
+            <small>Sólo si deglute comprimidos y el fraccionamiento es práctico. Tope: TMP {tmp.maxTmpMgDay} mg/día.</small>
+          </div>
+          <Brands brands={tmp.brands} compact />
+        </div>
+
+        <div className="comboDrug">
+          <h4>{clinda.label}</h4>
+          <DoseEditor label="Dosis diaria clindamicina" unit="mg/kg/día" value={clindaDoseInput} setValue={setClindaDoseInput} dirty={clindaDirty} onApply={applyClinda} />
+          <label className="compactSelect smallSelect">Intervalo <select value={clindaInterval} onChange={e => setClindaInterval(e.target.value)}><option value="8">cada 8 h</option><option value="6">cada 6 h</option></select></label>
+          <div className="doseLine">
+            <b>{fmt(clindaMl)} ml VO cada {clindaIntervalNumber} h</b>
+            <small>{fmt(clindaDoseMg)} mg por toma · {clinda.suspension.label}</small>
+          </div>
+          <div className="doseLine subtle">
+            <b>{clinda.adultTablet.mg} mg VO cada 6–8 h</b>
+            <small>Esquema adulto si toma comprimidos. Tope configurado app: {clinda.maxMgDay} mg/día.</small>
+          </div>
+          <Brands brands={clinda.brands} compact />
+        </div>
+      </div>
+
+      <button className="accordionHeader" onClick={() => setOpen(!open)}><span>Ver cálculos y notas</span><b>{open ? '⌃' : '⌄'}</b></button>
+      {open && <ol className="calcList">
+        <li>TMS-SMZ: {fmt(weight)} kg × {activeTmpDose} mg/kg/día TMP = {fmt(tmpDailyRaw)} mg TMP/día; por cada 1 mg TMP corresponden 5 mg SMX.</li>
+        <li>TMS-SMZ por toma: {fmt(tmpDaily)} mg TMP/día ÷ 2 = {fmt(tmpDoseMg)} mg TMP; {fmt(tmpDoseMg)} mg ÷ {tmp.suspension.tmpMgMl} mg/ml = <b>{fmt(tmpMl)} ml</b>.</li>
+        <li>Clindamicina: {fmt(weight)} kg × {activeClindaDose} mg/kg/día = {fmt(clindaDailyRaw)} mg/día; ÷ {dosesPerDayClinda} tomas/día = {fmt(clindaDoseMg)} mg/toma.</li>
+        <li>Clindamicina suspensión: {fmt(clindaDoseMg)} mg ÷ {clinda.suspension.mgMl} mg/ml = <b>{fmt(clindaMl)} ml por toma</b>.</li>
+        <li>Evitar en menores de 2 meses para TMS-SMZ. Ajustar o evitar según función renal, G6PD/hemoglobinopatías, reacciones cutáneas severas previas o criterio infectológico.</li>
+      </ol>}
+    </section>
+  )
+}
+
 function LidocaineCalc({ weight }) {
   const [conc, setConc] = useState('2')
   const [open, setOpen] = useState(true)
@@ -238,7 +354,11 @@ function AntibioticBox({ weight, allergy, noSolids, scenario = 'herida' }) {
   return (
     <section className="card medCard">
       <div className="sectionTitle"><span>💊</span><h3>Antibiótico</h3></div>
-      {allergy === 'Betalactámicos' ? <div className="alert danger">Alergia a betalactámicos: no sugerir amoxicilina/clavulánico. Usar alternativa según protocolo local/infectología.</div> : (
+      {allergy === 'Betalactámicos' ? (
+        scenario === 'mordedura'
+          ? <BiteBetaAllergyRegimen weight={weight} noSolids={noSolids} />
+          : <div className="alert danger">Alergia a betalactámicos: no sugerir amoxicilina/clavulánico. Usar alternativa según protocolo local/infectología.</div>
+      ) : (
         <>
           <div className={`alert ${indicated ? 'ok' : 'warn'}`}>{indicated ? 'Indicado/considerar fuerte en mordeduras de alto riesgo.' : 'No rutinario en herida limpia. Considerar sólo si contaminación, mordedura, inmunocompromiso, mano/pie, compromiso profundo o infección.'}</div>
           <label className="compactSelect">Presentación <select value={conc} onChange={e => setConc(e.target.value)}>{ab.concentrations.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}</select></label>
@@ -290,7 +410,8 @@ function Mordeduras({ formPatient, setFormPatient, calculatedPatient, onCalculat
       <PatientPanel formPatient={formPatient} setFormPatient={setFormPatient} calculatedPatient={calculatedPatient} onCalculate={onCalculate} />
       <section className="card"><div className="sectionTitle"><span>🧭</span><h3>Clasificación rápida</h3></div><div className="fieldGrid"><label className="field"><span>Origen</span><select value={animal} onChange={e => setAnimal(e.target.value)}><option>Perro</option><option>Gato</option><option>Humana</option><option>Otro</option></select></label><label className="field"><span>Localización</span><select value={location} onChange={e => setLocation(e.target.value)}><option>Extremidad</option><option>Mano</option><option>Cara</option><option>Pie</option><option>Genitales</option></select></label></div><div className="alert warn">Alto riesgo si mano/pie, punción profunda, gato, humana, inmunocompromiso, demora, compromiso articular/tendinoso o signos de infección.</div></section>
       {weight > 0 ? <AntibioticBox weight={weight} allergy={calculatedPatient.allergy} noSolids={calculatedPatient.noSolids} scenario="mordedura" /> : <EmptyWeight />}
-      <section className="card"><div className="sectionTitle"><span>🧼</span><h3>Manejo inicial</h3></div><ul className="checks"><li>Irrigación abundante con solución fisiológica.</li><li>Explorar profundidad, tendones, articulación, sensibilidad y perfusión.</li><li>Evitar cierre primario si infectada o alto riesgo; cara puede cerrarse tras limpieza adecuada y consulta temprana.</li><li>Verificar tétanos y evaluar profilaxis antirrábica según normativa local.</li></ul></section>
+      <section className="card"><div className="sectionTitle"><span>🧼</span><h3>Manejo inicial según SAP</h3></div><ul className="checks"><li>Lavar lo antes posible con abundante agua corriente y jabón; luego irrigar con solución fisiológica.</li><li>Revisar colgajos y anfractuosidades sin agravar la herida. No cepillar.</li><li>Explorar profundidad, tendones, articulación, sensibilidad y perfusión.</li><li>La decisión de cerrar depende del animal, tamaño, ubicación, tiempo de evolución y estado general. Priorizar evitar infección sobre cosmética.</li><li>Verificar tétanos y evaluar profilaxis antirrábica. Contactar zoonosis si corresponde.</li></ul></section>
+      <section className="card"><div className="sectionTitle"><span>🚩</span><h3>Clasificación rábica rápida</h3></div><ul className="checks"><li>Leve: lamedura de piel con herida superficial o herida superficial única fuera de cabeza/cara/cuello/manos/pies/genitales.</li><li>Grave: cabeza, cara, cuello, manos, pies, genitales; herida profunda, puntiforme, múltiple, extensa; mucosas; mamíferos silvestres o murciélago.</li><li>Registrar animal agresor, disponibilidad para observación, vacunación y antecedentes epidemiológicos.</li></ul></section>
       <DischargeText type="mordedura" />
     </section>
   )
@@ -379,7 +500,7 @@ function App() {
   const onCalculate = () => setCalculatedPatient({ ...formPatient })
   const sharedProps = useMemo(() => ({ formPatient, setFormPatient, calculatedPatient, onCalculate }), [formPatient, calculatedPatient])
   const screen = active === 'heridas' ? <Heridas {...sharedProps} /> : active === 'mordeduras' ? <Mordeduras {...sharedProps} /> : active === 'suturas' ? <Suturas /> : active === 'abdomen' ? <Abdomen {...sharedProps} /> : <Analgesia {...sharedProps} />
-  return <div className="phoneShell"><div className="app"><Header /><Home active={active} setActive={setActive} />{screen}<div className="legal">Herramienta de apoyo para profesionales. Verificar guías locales. Versión 0.2.</div><BottomNav active={active} setActive={setActive} /></div></div>
+  return <div className="phoneShell"><div className="app"><Header /><Home active={active} setActive={setActive} />{screen}<div className="legal">Herramienta de apoyo para profesionales. Verificar guías locales. Versión 0.3.</div><BottomNav active={active} setActive={setActive} /></div></div>
 }
 
 createRoot(document.getElementById('root')).render(<App />)
