@@ -30,3 +30,28 @@ button,input,select{font:inherit}
 .adultScheme b{color:var(--blue2);font-size:13px}.adultScheme span{font-size:14px;font-weight:850;color:var(--ink)}
 .comboGrid{display:grid;grid-template-columns:1fr;gap:12px}.comboDrug{border:1px solid var(--line);border-radius:18px;background:white;padding:12px;display:flex;flex-direction:column;gap:10px}.comboDrug h4{margin:0;color:var(--blue2);font-size:16px}.doseLine.subtle{background:#fff;border-style:dashed}.doseLine.subtle b{font-size:17px;color:var(--ink)}.smallSelect{justify-content:flex-start;margin:0}.smallSelect select{max-width:135px;padding:8px 10px}.betaAltCard .doseLine b{font-size:20px}.betaAltCard .card{box-shadow:none}
 @media(min-width:900px){.comboGrid{grid-template-columns:1fr 1fr}}
+
+/* Suturas v0.4 */
+.sutureCard{background:linear-gradient(180deg,#ffffff,#fbfdff)}
+.sutureResultGrid{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:12px}
+.sutureResultGrid>div{border:1px solid var(--line);background:#f8fbff;border-radius:15px;padding:11px 12px;display:flex;flex-direction:column;gap:4px}
+.sutureResultGrid small{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:900}
+.sutureResultGrid b{font-size:14px;line-height:1.28;color:var(--ink)}
+.sutureDetails{display:grid;gap:8px;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;background:white;padding:10px}
+.miniBlock{border:1px solid #e2eaf7;background:#fbfdff;border-radius:13px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;line-height:1.32}
+.miniBlock b{color:var(--blue2);font-size:13px}.miniBlock span{color:#27324d;font-size:13px;font-weight:650}
+.roomy{gap:10px}.dangerSoft{border-color:#ffd0c9;background:linear-gradient(180deg,#fff,#fff8f7)}
+.sutureDiagram{position:relative;min-height:156px;border:1px solid #d9e2f2;border-radius:18px;background:linear-gradient(180deg,#f8fbff,#fff);overflow:hidden;margin-bottom:12px;padding:16px}
+.skinPlane{position:absolute;top:48px;height:56px;background:#fde7d7;border:1px solid #f0b990;color:#6b3b18;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.skinPlane.left{left:18px;width:38%}.skinPlane.right{right:18px;width:38%}
+.woundGap{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:48px;height:56px;background:#fff;border-left:2px dashed #c44;border-right:2px dashed #c44;color:#b42318;font-size:11px;font-weight:950;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed}
+.thread{position:absolute;border:3px solid var(--blue);border-bottom:0;border-radius:999px 999px 0 0;height:42px;width:84px;left:50%;transform:translateX(-50%);top:43px}
+.thread.arc2{top:76px;height:24px;width:110px;opacity:.45;border-color:#0b64e5}.knot{position:absolute;top:35px;right:26px;background:#fff;border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900}
+.diagramCaption{position:absolute;left:16px;right:16px;bottom:12px;font-size:12px;line-height:1.25;color:var(--muted);font-weight:750;text-align:center}
+.decisionGrid,.careGrid,.tetanusGrid{display:grid;grid-template-columns:1fr;gap:9px}
+.decisionGrid>div,.careItem,.tetanusGrid>div{border:1px solid var(--line);background:#f8fbff;border-radius:15px;padding:11px 12px;display:flex;flex-direction:column;gap:5px;line-height:1.32}
+.decisionGrid b,.careItem b,.tetanusGrid b{color:var(--blue2);font-size:14px}.decisionGrid span,.careItem span,.tetanusGrid span{color:#27324d;font-size:13px;font-weight:650}
+.kitBox{margin-top:10px;border:1px solid #b9e6df;background:#e8f7f5;color:#07564b;border-radius:15px;padding:11px 12px;font-size:13px;line-height:1.35;font-weight:700}
+.tinyNote{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.35;font-weight:700}
+.videoList{display:grid;gap:8px}.videoList a{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);background:#f8fbff;color:var(--blue);border-radius:14px;padding:11px 12px;font-weight:900;text-decoration:none;font-size:13px;line-height:1.25}.videoList a:after{content:'↗';font-size:14px;color:var(--muted)}
+@media(min-width:900px){.sutureResultGrid{grid-template-columns:1fr 1fr 1fr}.decisionGrid{grid-template-columns:1fr 1fr}.careGrid{grid-template-columns:1fr 1fr 1fr}.tetanusGrid{grid-template-columns:1fr 1fr}}

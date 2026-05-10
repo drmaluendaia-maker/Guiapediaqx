@@ -417,20 +417,283 @@ function Mordeduras({ formPatient, setFormPatient, calculatedPatient, onCalculat
   )
 }
 
-function SutureQuick({ zone = 'Seleccionar zona' }) {
-  const [z, setZ] = useState(zone)
-  const rows = {
-    'Cara / frente': ['Nylon 5-0 / 6-0', 'Puntos simples interrumpidos', 'Retiro 5–7 días'],
-    'Cuero cabelludo': ['Nylon 4-0 o grapas', 'Puntos simples', 'Retiro 7–10 días'],
-    'Extremidad': ['Nylon 4-0', 'Puntos simples', 'Retiro 10–14 días'],
-    'Mano / dedos': ['Nylon 5-0', 'Evaluar tendón/nervio/vaso', 'Retiro 10–14 días'],
-    'Labio': ['Nylon 6-0 piel / absorbible mucosa', 'Alinear borde bermellón', 'Control estrecho']
+
+const SUTURE_GUIDE = {
+  'Cara / frente': {
+    material: 'Nylon/Prolene 5-0 o 6-0',
+    technique: 'Puntos simples interrumpidos. Priorizar eversión suave y mínima tensión.',
+    removal: '3–5 días; en frente suele ser práctico 5 días + tiras adhesivas.',
+    consult: 'Derivar si herida profunda, pérdida de tejido, rama facial, parótida, conducto lagrimal o mala alineación estética.',
+    antibiotic: 'No sistémico si limpia y simple.',
+    care: 'Puede quedar descubierta o con apósito fino. Higiene suave desde 24–48 h.'
+  },
+  'Párpado / periocular': {
+    material: 'Nylon 6-0 / 7-0 o absorbible fino según disponibilidad',
+    technique: 'No cerrar a ciegas si compromete borde palpebral.',
+    removal: '3–5 días.',
+    consult: 'Oftalmología/plástica si borde palpebral, canalículo lagrimal, canto medial, grasa orbitaria visible, ptosis o lesión penetrante.',
+    antibiotic: 'Según oftalmología si periocular compleja.',
+    care: 'Evitar presión directa sobre globo ocular. Control precoz.'
+  },
+  'Labio': {
+    material: 'Piel: nylon 6-0. Mucosa: absorbible 4-0/5-0. Músculo: absorbible 4-0 si transfixiante.',
+    technique: 'Primer punto en borde bermellón. Error >1 mm deja defecto cosmético visible.',
+    removal: 'Piel 3–5 días; mucosa absorbible.',
+    consult: 'Derivar si transfixiante extensa, pérdida de tejido, comisura, avulsión o duda para alinear bermellón.',
+    antibiotic: 'Considerar si transfixiante intraoral, mordedura o contaminación.',
+    care: 'Dieta blanda si mucosa, higiene oral, evitar tracción.'
+  },
+  'Cuero cabelludo': {
+    material: 'Nylon 4-0, grapas o cabello anudado si herida lineal simple.',
+    technique: 'Puntos simples o grapas. No rasurar salvo necesidad puntual.',
+    removal: '7–10 días.',
+    consult: 'Derivar si hundimiento óseo, galea amplia, sangrado persistente, mordedura, cuerpo extraño o trauma craneal asociado.',
+    antibiotic: 'No sistémico si limpia y simple.',
+    care: 'Puede lavarse con ducha breve luego de 24 h si no sangra; secar sin frotar.'
+  },
+  'Oreja': {
+    material: 'Piel 5-0/6-0. Cartílago/pericondrio: valorar absorbible profundo.',
+    technique: 'Cubrir cartílago expuesto. Vendaje compresivo si riesgo de hematoma.',
+    removal: '5–7 días.',
+    consult: 'Derivar si cartílago expuesto amplio, avulsión, hematoma auricular, pérdida de tejido o mordedura.',
+    antibiotic: 'Considerar si cartílago expuesto, mordedura o contaminación.',
+    care: 'Control 24–48 h por hematoma/infección.'
+  },
+  'Tronco': {
+    material: 'Nylon 4-0 o 5-0. Si profunda: subcutáneo absorbible 3-0/4-0.',
+    technique: 'Puntos simples. Cerrar por planos si hay espacio muerto.',
+    removal: '10–14 días según tensión.',
+    consult: 'Derivar si penetrante, tórax/abdomen profundo, sangrado, cuerpo extraño o lesión muscular amplia.',
+    antibiotic: 'No sistémico si limpia y simple.',
+    care: 'Apósito seco/no adherente. Curación diaria si roza con ropa.'
+  },
+  'Extremidad superior': {
+    material: 'Nylon 4-0 o 5-0. Profundo: absorbible 4-0 si precisa.',
+    technique: 'Puntos simples. Inmovilizar si cruza articulación.',
+    removal: '7–10 días; sobre articulación 10–14 días.',
+    consult: 'Derivar si mano, tendón, nervio, vaso, articulación, fractura, déficit sensitivo/motor o perfusión dudosa.',
+    antibiotic: 'No sistémico si limpia; considerar si aplastamiento/contaminación.',
+    care: 'Elevar 24–48 h. Apósito seco. Control si edema/dolor.'
+  },
+  'Extremidad inferior': {
+    material: 'Nylon 3-0/4-0. Pretibial: evitar cierre bajo tensión.',
+    technique: 'Puntos simples; valorar colchonero vertical si tensión y operador entrenado.',
+    removal: '10–14 días; más si alta tensión.',
+    consult: 'Derivar si tensión excesiva, tejido desvitalizado, exposición ósea/tendinosa, lesión vascular o herida compleja.',
+    antibiotic: 'Considerar si contaminación masiva, aplastamiento o inmunocompromiso.',
+    care: 'Reposo relativo, elevación, apósito no adherente. Control 24–48 h si riesgo.'
+  },
+  'Mano / dedos': {
+    material: 'Nylon 5-0. Evitar cerrar sin explorar función.',
+    technique: 'Antes de anestesia documentar flexión/extensión, sensibilidad y perfusión.',
+    removal: '10–14 días.',
+    consult: 'Derivar si lesión tendinosa, nerviosa, vascular, articular, lecho ungueal complejo, mordedura o cuerpo extraño.',
+    antibiotic: 'Considerar si mordedura, punción, aplastamiento o contaminación.',
+    care: 'Apósito robusto, elevación, inmovilización si cruza articulación.'
+  },
+  'Pie / planta': {
+    material: 'Nylon 3-0/4-0 según tensión.',
+    technique: 'Puntos simples. La planta requiere alta resistencia y descarga.',
+    removal: '14–21 días.',
+    consult: 'Derivar si punción profunda, cuerpo extraño, lesión tendinosa, articulación, infección o paciente no puede descargar.',
+    antibiotic: 'Considerar si punción por calzado, contaminación o inmunocompromiso.',
+    care: 'Descarga, calzado abierto si posible, control 24–48 h si profunda.'
+  },
+  'Genital / periné': {
+    material: 'Preferir absorbible 4-0/5-0 según zona.',
+    technique: 'No cerrar sin descartar lesión uretral, anal, vaginal o abuso.',
+    removal: 'Absorbible; si piel con nylon, 7–10 días.',
+    consult: 'Derivar de entrada si genital, perineal, anal, sangrado importante o sospecha de abuso.',
+    antibiotic: 'Según mecanismo, contaminación y especialista.',
+    care: 'Higiene suave, control precoz.'
   }
-  return <section className="card"><div className="sectionTitle"><span>🪡</span><h3>Suturas sugeridas</h3></div><label className="compactSelect">Zona <select value={z} onChange={e => setZ(e.target.value)}>{Object.keys(rows).map(k => <option key={k}>{k}</option>)}</select></label><div className="summaryList">{rows[z].map(x => <span key={x}>{x}</span>)}</div></section>
 }
 
-function Suturas() {
-  return <section className="screen stack"><div className="topBar"><span>🪡</span><div><h2>Suturas por zona</h2><p>Material, técnica, retiro y alertas de derivación.</p></div></div><SutureQuick /><section className="card"><div className="sectionTitle"><span>🚩</span><h3>Derivar / avisar cirugía</h3></div><ul className="checks"><li>Lesión tendinosa, nerviosa, vascular o articular.</li><li>Pérdida de tejido, mordedura profunda, cuerpo extraño no removible.</li><li>Herida compleja en cara, labio, párpado, oreja, mano o genitales.</li></ul></section></section>
+const SUTURE_CHECKLIST = [
+  'Hemostasia y exploración completa antes de cerrar.',
+  'Documentar función distal antes de anestesiar: movilidad, sensibilidad, perfusión.',
+  'Irrigar con abundante solución fisiológica o agua potable segura; retirar cuerpos extraños visibles.',
+  'Cerrar sólo si bordes aproximables, tejido viable y contaminación controlada.',
+  'No cerrar bajo tensión excesiva. Si hay espacio muerto, valorar plano profundo o derivar.',
+  'Elegir absorbible si el niño probablemente requerirá sedación también para retirar puntos.'
+]
+
+const CONSULT_FLAGS = [
+  'Compromiso tendinoso, nervioso, vascular, articular, óseo o déficit funcional.',
+  'Herida en párpado, labio complejo, oreja con cartílago, mano, genital/periné o cara con alto impacto estético.',
+  'Mordedura profunda, humana, gato, mano/pie/cara compleja o herida infectada.',
+  'Pérdida de tejido, avulsión, aplastamiento, tejido desvitalizado o cierre con tensión.',
+  'Cuerpo extraño no removible, vidrio/madera sospechado, herida penetrante en tórax/abdomen/cuello.',
+  'Sangrado que no cede, necesidad de sedación, niño no colaborador o falta de experiencia del operador.',
+  'Sospecha de maltrato, lesión autoinfligida o mecanismo no consistente.'
+]
+
+function SutureDiagram() {
+  return (
+    <div className="sutureDiagram" aria-label="Diagrama esquemático de punto simple">
+      <div className="skinPlane left">Piel A</div>
+      <div className="woundGap">Herida</div>
+      <div className="skinPlane right">Piel B</div>
+      <div className="thread arc1" />
+      <div className="thread arc2" />
+      <div className="knot">nudo lateral</div>
+      <div className="diagramCaption">Punto simple: entrada a 90°, misma distancia a ambos lados, bordes evertidos, nudo al costado.</div>
+    </div>
+  )
+}
+
+function SutureQuick({ zone = 'Cara / frente', expanded = false }) {
+  const [z, setZ] = useState(SUTURE_GUIDE[zone] ? zone : 'Cara / frente')
+  const [open, setOpen] = useState(expanded)
+  const item = SUTURE_GUIDE[z]
+  return (
+    <section className="card sutureCard">
+      <div className="sectionTitle"><span>🪡</span><h3>Suturas por zona</h3></div>
+      <label className="compactSelect">Zona <select value={z} onChange={e => setZ(e.target.value)}>{Object.keys(SUTURE_GUIDE).map(k => <option key={k}>{k}</option>)}</select></label>
+      <div className="sutureResultGrid">
+        <div><small>Material</small><b>{item.material}</b></div>
+        <div><small>Técnica</small><b>{item.technique}</b></div>
+        <div><small>Retiro</small><b>{item.removal}</b></div>
+      </div>
+      <div className="alert warn"><b>Interconsulta:</b> {item.consult}</div>
+      <button className="accordionHeader" onClick={() => setOpen(!open)}><span>Ver antibiótico, curaciones y alta</span><b>{open ? '⌃' : '⌄'}</b></button>
+      {open && <div className="sutureDetails">
+        <div className="miniBlock"><b>Antibiótico</b><span>{item.antibiotic}</span></div>
+        <div className="miniBlock"><b>Curación</b><span>{item.care}</span></div>
+        <div className="miniBlock"><b>Alta</b><span>Pautas de alarma, fecha de control/retiro, estado antitetánico y analgesia según peso.</span></div>
+      </div>}
+    </section>
+  )
+}
+
+function SutureBasics() {
+  const [open, setOpen] = useState(true)
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>📚</span><h3>Básicos antes de suturar</h3></div>
+      <SutureDiagram />
+      <button className="accordionHeader" onClick={() => setOpen(!open)}><span>Checklist rápido</span><b>{open ? '⌃' : '⌄'}</b></button>
+      {open && <ul className="checks roomy">{SUTURE_CHECKLIST.map(x => <li key={x}>{x}</li>)}</ul>}
+    </section>
+  )
+}
+
+function ConsultationCard() {
+  return (
+    <section className="card dangerSoft">
+      <div className="sectionTitle"><span>🚩</span><h3>Derivar / avisar cirugía</h3></div>
+      <ul className="checks roomy">{CONSULT_FLAGS.map(x => <li key={x}>{x}</li>)}</ul>
+    </section>
+  )
+}
+
+function ClosureSelectionCard() {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>🧭</span><h3>Elegir tipo de cierre</h3></div>
+      <div className="decisionGrid">
+        <div><b>Punto simple</b><span>Default para la mayoría de laceraciones simples. Fácil de colocar y retirar.</span></div>
+        <div><b>Tiras adhesivas</b><span>Heridas pequeñas, lineales, baja tensión, bordes muy aproximables.</span></div>
+        <div><b>Adhesivo tisular</b><span>Cara/cuero cabelludo, baja tensión, sin sangrado. No usar si bordes mal alineados.</span></div>
+        <div><b>Grapas</b><span>Cuero cabelludo o tronco lineal. Rápidas, no ideales en cara.</span></div>
+        <div><b>Plano profundo</b><span>Espacio muerto o tensión. Si no tenés práctica, interconsulta.</span></div>
+        <div><b>No cerrar / diferido</b><span>Mordedura infectada, contaminación no controlada, tejido desvitalizado o alto riesgo.</span></div>
+      </div>
+    </section>
+  )
+}
+
+function DressingPlanCard() {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>🧼</span><h3>Curaciones y control</h3></div>
+      <div className="careGrid">
+        <div className="careItem"><b>Domiciliaria</b><span>Herida simple, limpia, cuidador confiable. Mantener seca 24–48 h; luego lavar con agua y jabón, secar, cubrir si roza.</span></div>
+        <div className="careItem"><b>Centro de salud</b><span>Riesgo moderado, familia con dudas, mano/pie, extremidad inferior, niño pequeño, cambio de apósito o control 24–48 h.</span></div>
+        <div className="careItem"><b>Guardia/cirugía</b><span>Dolor progresivo, secreción, fiebre, dehiscencia, déficit funcional, sangrado, mordedura compleja o mala evolución.</span></div>
+      </div>
+      <div className="kitBox"><b>Elementos:</b> guantes limpios, agua y jabón o solución fisiológica, gasas, apósito no adherente, cinta/film, vaselina o ungüento tópico si protocolo local. Evitar alcohol/agua oxigenada dentro de la herida.</div>
+    </section>
+  )
+}
+
+function AntibioticAftercareCard({ setActive }) {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>💊</span><h3>Antibióticos al alta</h3></div>
+      <div className="alert ok">Herida cortante limpia y simple: no usar antibiótico sistémico de rutina.</div>
+      <ul className="checks roomy">
+        <li>Indicar o valorar si mordedura, contaminación masiva, aplastamiento, tejido desvitalizado, exposición de cartílago/hueso/tendón, inmunocompromiso o infección establecida.</li>
+        <li>En mordedura, usar módulo específico para amoxicilina/clavulánico o alternativa en alergia a betalactámicos.</li>
+        <li>El desbridamiento, irrigación y control precoz son más importantes que el antibiótico en heridas contaminadas.</li>
+      </ul>
+      <button className="primary ghost" onClick={() => setActive?.('mordeduras')}>Abrir módulo Mordeduras</button>
+    </section>
+  )
+}
+
+function TetanusCard() {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>💉</span><h3>Tétanos</h3></div>
+      <div className="tetanusGrid">
+        <div><b>Herida limpia menor</b><span>Refuerzo si esquema completo pero última dosis ≥10 años. Sin TIG.</span></div>
+        <div><b>Herida sucia/mayor</b><span>Refuerzo si última dosis ≥5 años. TIG si esquema desconocido/incompleto o inmunodeficiencia relevante.</span></div>
+      </div>
+      <p className="tinyNote">Registrar fecha de última dosis y esquema. Adaptar a calendario argentino y disponibilidad local.</p>
+    </section>
+  )
+}
+
+function AlarmCard() {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>⚠️</span><h3>Pautas de alarma</h3></div>
+      <div className="chips"><span>Fiebre</span><span>Dolor progresivo</span><span>Eritema que avanza</span><span>Calor/edema</span><span>Pus/mal olor</span><span>Líneas rojas</span><span>Apertura</span><span>Sangrado</span><span>Adormecimiento</span><span>Déficit motor</span></div>
+    </section>
+  )
+}
+
+function LearningResourcesCard() {
+  return (
+    <section className="card">
+      <div className="sectionTitle"><span>🎥</span><h3>Recursos visuales</h3></div>
+      <div className="videoList">
+        <a href="https://www.msdmanuals.com/professional/multimedia/video/how-to-do-simple-interrupted-sutures" target="_blank" rel="noreferrer">MSD Manual · Punto simple interrumpido</a>
+        <a href="https://www.nejm.org/doi/full/10.1056/NEJMvcm064238" target="_blank" rel="noreferrer">NEJM · Basic Laceration Repair</a>
+        <a href="https://www.youtube.com/watch?v=z8oWv-nVO6g" target="_blank" rel="noreferrer">Geeky Medics · Simple interrupted suture</a>
+        <a href="https://www.youtube.com/playlist?list=PLUv9oht3hC6SGfT8BogmOAaXE8Uez9TNY" target="_blank" rel="noreferrer">CHOP · Basic Suture Techniques</a>
+      </div>
+      <p className="tinyNote">Usar los videos como entrenamiento visual; no reemplazan supervisión local ni práctica en simulador.</p>
+    </section>
+  )
+}
+
+function SutureDischargeText() {
+  const text = 'Herida suturada: mantener limpia y seca 24–48 h. Luego lavar suavemente con agua y jabón, secar sin frotar y cubrir si roza o drena. No sumergir. Analgesia según peso. Control/retiro de puntos según zona. Consultar si fiebre, dolor progresivo, enrojecimiento que avanza, calor, edema, pus, mal olor, apertura de la herida, sangrado, adormecimiento o dificultad para mover la zona. Verificar vacunación antitetánica.'
+  const copy = async () => { try { await navigator.clipboard.writeText(text) } catch {} }
+  return <section className="card"><div className="sectionTitle"><span>📄</span><h3>Indicación al alta para copiar</h3></div><p className="copyText">{text}</p><button className="primary ghost" onClick={copy}>Copiar indicación</button></section>
+}
+
+function Suturas({ formPatient, setFormPatient, calculatedPatient, onCalculate, setActive }) {
+  const weight = parseNumber(calculatedPatient?.weight) || 0
+  return (
+    <section className="screen stack">
+      <div className="topBar"><span>🪡</span><div><h2>Suturas</h2><p>Guía rápida para operadores con experiencia limitada: zona, material, técnica, alta e interconsulta.</p></div></div>
+      {formPatient && <PatientPanel formPatient={formPatient} setFormPatient={setFormPatient} calculatedPatient={calculatedPatient} onCalculate={onCalculate} />}
+      <SutureQuick expanded />
+      {weight > 0 ? <LidocaineCalc weight={weight} /> : <EmptyWeight />}
+      <SutureBasics />
+      <ClosureSelectionCard />
+      <ConsultationCard />
+      <AntibioticAftercareCard setActive={setActive} />
+      <DressingPlanCard />
+      <TetanusCard />
+      <AlarmCard />
+      <LearningResourcesCard />
+      <SutureDischargeText />
+    </section>
+  )
 }
 
 function Abdomen({ formPatient, setFormPatient, calculatedPatient, onCalculate }) {
@@ -499,8 +762,8 @@ function App() {
   const [calculatedPatient, setCalculatedPatient] = useState({ weight: '18', age: '5', allergy: 'No conocidas', noSolids: 'No' })
   const onCalculate = () => setCalculatedPatient({ ...formPatient })
   const sharedProps = useMemo(() => ({ formPatient, setFormPatient, calculatedPatient, onCalculate }), [formPatient, calculatedPatient])
-  const screen = active === 'heridas' ? <Heridas {...sharedProps} /> : active === 'mordeduras' ? <Mordeduras {...sharedProps} /> : active === 'suturas' ? <Suturas /> : active === 'abdomen' ? <Abdomen {...sharedProps} /> : <Analgesia {...sharedProps} />
-  return <div className="phoneShell"><div className="app"><Header /><Home active={active} setActive={setActive} />{screen}<div className="legal">Herramienta de apoyo para profesionales. Verificar guías locales. Versión 0.3.</div><BottomNav active={active} setActive={setActive} /></div></div>
+  const screen = active === 'heridas' ? <Heridas {...sharedProps} /> : active === 'mordeduras' ? <Mordeduras {...sharedProps} /> : active === 'suturas' ? <Suturas {...sharedProps} setActive={setActive} /> : active === 'abdomen' ? <Abdomen {...sharedProps} /> : <Analgesia {...sharedProps} />
+  return <div className="phoneShell"><div className="app"><Header /><Home active={active} setActive={setActive} />{screen}<div className="legal">Herramienta de apoyo para profesionales. Verificar guías locales. Versión 0.4.</div><BottomNav active={active} setActive={setActive} /></div></div>
 }
 
 createRoot(document.getElementById('root')).render(<App />)
