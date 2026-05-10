@@ -1,6 +1,6 @@
 # Guía Quirúrgica Pediátrica Notti — WebApp
 
-Prototipo inicial en React + Vite, pensado como WebApp móvil para residentes.
+Prototipo en React + Vite, pensado como WebApp móvil para residentes de pediatría/cirugía.
 
 ## 1. Archivos importantes
 
@@ -27,7 +27,19 @@ public/logo.png
 
 Si no lo colocás, la app muestra un encabezado textual alternativo “NOTTI”.
 
-## 3. Ejecutar localmente
+## 3. Novedades de la versión 0.2
+
+- Edad como lista desplegable desde 0 hasta 15 años.
+- Botón **Calcular indicaciones** debajo de los datos del paciente.
+- La app ya no recalcula automáticamente al escribir: conserva los últimos datos calculados hasta presionar **Calcular**.
+- Aviso visual si hay cambios pendientes sin calcular.
+- En antibióticos se agregó campo editable **mg/kg/día**.
+- Botón **Recalcular medicamento** para modificar sólo ese medicamento sin cambiar todo el caso.
+- En analgesia se agregó campo editable **mg/kg/dosis**.
+- Se agregaron ejemplos de marcas comerciales habituales de Argentina en los medicamentos incluidos.
+- Se agregó explicación desplegable del cálculo antibiótico.
+
+## 4. Ejecutar localmente
 
 Necesitás instalar Node.js.
 
@@ -44,7 +56,7 @@ Abrí la URL que aparece en la terminal, normalmente:
 http://localhost:5173
 ```
 
-## 4. Compilar para producción
+## 5. Compilar para producción
 
 ```bash
 npm run build
@@ -56,7 +68,7 @@ Esto genera la carpeta:
 dist/
 ```
 
-## 5. Desplegar gratis en Render como Static Site
+## 6. Desplegar gratis en Render como Static Site
 
 1. Subí esta carpeta a un repositorio de GitHub.
 2. Entrá a Render.
@@ -71,7 +83,7 @@ Publish Directory: dist
 
 6. Deploy.
 
-## 6. Módulos incluidos en esta versión
+## 7. Módulos incluidos
 
 - Heridas cortantes
 - Lidocaína sin adrenalina 1% / 2%
@@ -81,11 +93,9 @@ Publish Directory: dist
 - Analgesia: paracetamol, ibuprofeno 2%, ibuprofeno 4%, dipirona gotas
 - Indicaciones al alta copiables
 
-## 7. Datos clínicos implementados
+## 8. Datos clínicos implementados
 
 ### Lidocaína sin adrenalina
-
-Default conservador:
 
 ```txt
 3 mg/kg
@@ -97,8 +107,9 @@ Tope absoluto configurado: 200 mg
 ### Amoxicilina/clavulánico
 
 ```txt
-50 mg/kg/día por componente amoxicilina
-Cada 12 h
+Dosis editable por el usuario en mg/kg/día, calculada por componente amoxicilina.
+Default: 50 mg/kg/día.
+Frecuencia: cada 12 h.
 Presentaciones:
 - 400/57 mg cada 5 ml = 80 mg/ml de amoxicilina
 - 600/42,9 mg cada 5 ml = 120 mg/ml de amoxicilina
@@ -108,11 +119,15 @@ Presentaciones:
 ### Analgesia
 
 ```txt
-Paracetamol: 15 mg/kg/dosis
-Ibuprofeno: 10 mg/kg/dosis
-Dipirona: 12,5 mg/kg/dosis ≈ 0,5 gotas/kg si 25 mg/gota
+Paracetamol: default 15 mg/kg/dosis
+Ibuprofeno: default 10 mg/kg/dosis
+Dipirona: default 12,5 mg/kg/dosis ≈ 0,5 gotas/kg si 25 mg/gota
 ```
 
-## 8. Advertencia de uso
+## 9. Marcas comerciales
 
-Esta versión es un prototipo. Antes de uso clínico real, revisar y aprobar las dosis, topes, indicaciones y alternativas con protocolo institucional local, cirugía pediátrica, infectología y farmacia hospitalaria.
+Las marcas comerciales están cargadas como ejemplos para orientar al residente y deben revisarse contra el stock real del hospital/farmacia y el vademécum actualizado.
+
+## 10. Advertencia de uso
+
+Esta versión es un prototipo. Antes de uso clínico real, revisar y aprobar dosis, topes, indicaciones, marcas comerciales, alternativas y duraciones con protocolo institucional local, cirugía pediátrica, infectología y farmacia hospitalaria.
